@@ -8,18 +8,21 @@ import (
 
 func main() {
 	introduction()
-	menu()
-	command := inputCommand()
 
-	switch command {
-	case 1:
-		startMonitoring()
-	case 2:
-		showLogs()
-	case 0:
-		exitApp()
-	default:
-		commandUnknown()
+	for {
+		menu()
+		command := inputCommand()
+	
+		switch command {
+		case 1:
+			startMonitoring()
+		case 2:
+			showLogs()
+		case 0:
+			exitApp()
+		default:
+			commandUnknown()
+		}
 	}
 }
 
@@ -46,7 +49,7 @@ func inputCommand() int {
 
 func startMonitoring() {
 	fmt.Println("Monitoring")
-	site := "https://www.alura.com.br/"
+	site := "https://httpstat.us/Random/200,201,500-504"
 	resp, _ := http.Get(site)
 
 	if resp.StatusCode == 200 {
