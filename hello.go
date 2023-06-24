@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -96,9 +98,9 @@ func monitoring(sites []string) {
 			}
 
 			if resp.StatusCode == 200 {
-				fmt.Println("Success! The site", value, " is on ar. Status code 200")
+				fmt.Println(value, "is on ar. Status code: 200")
 			} else {
-				fmt.Println("The site", value, " is not answering. Possible status code: 201,500-504")
+				fmt.Println(value, "is not answering. Possible status code: 201,500-504")
 			}
 		}
 		time.Sleep(delay * time.Second)
@@ -132,14 +134,20 @@ func readSitesFile() []string {
 	if err != nil {
 		fmt.Println("Something went wrong here:", err)
 	}
-	reader := bufio.NewReader(file) // creates a reader that roam the content inside file
-	line, err := reader.ReadString('\n') // read string until line break "\n"
 
-	if err != nil {
-		fmt.Println("Something went wrong here:", err)
+	reader := bufio.NewReader(file) // creates a reader that roam the content inside file
+
+	for {
+		line, err := reader.ReadString('\n') // read string until line break "\n"
+		line = strings.TrimSpace(line)       // ignore line break
+		sites = append(sites, line)
+
+		if err == io.EOF {
+			break
+		}
 	}
 
-	fmt.Println(line)
+	file.Close()
 
 	return sites
 }
