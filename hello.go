@@ -4,21 +4,16 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
 
-var global1 int             // Declaring a variable with `var` keyword
-var global2 int = 10        // Assigning a value to a variable right away
-var global3 = "this is ok!" // Go infer type based on your value
-// badVar := "this doesn't work"   // `:=` can be used only inside a function
-
-const delay = 1
-const tests int = 5
-
 func main() {
+	
 	introduction()
 
 	for {
@@ -39,11 +34,9 @@ func main() {
 }
 
 func introduction() {
-	name := "Lucas"       // It means assign the string Lucas to the var name. It is dynamic typing.
 	var version int = 1.0 // It is static typing.
 
-	fmt.Println("Hello", name)
-	fmt.Println("The program is in version", version)
+	fmt.Println("Hello there! This program is in version", version)
 }
 
 func menu() {
@@ -61,34 +54,30 @@ func inputCommand() int {
 }
 
 func startMonitoring() {
+	var delay string
+	var tests int
+
+	fmt.Println("Type how many times you want to monitor/request the status code HTTP of each website (e.g., 1, 2, 3, ...):")
+	fmt.Scan(&tests)
+	fmt.Println("Type the interval of verifications (e.g., 5s, 2m, 1h):")
+	fmt.Scan(&delay)
 	fmt.Println("Monitoring")
 
-	// Array declaration:
-	// var x [5] int
-	// x := [5]int{2, 3, 5, 7, 11, 13}
-	// Slice declaration:
-	// var s [] int
-	// s := []int{2, 3, 4, 9, 1}
-
-	// sites := []string{
-	// 	"https://httpstat.us/Random/200,201,500-504",
-	// 	"https://www.alura.com.br/",
-	// 	"https://medium.com/creators",
-	// }
+	duration, err := time.ParseDuration(delay)
+	if err != nil {
+		fmt.Println("Invalid duration format:", err)
+		return
+	}
 
 	sites := readSitesFile()
 
-	monitoring(sites)
+	monitoring(sites, tests, duration)
 
 }
 
-func monitoring(sites []string) {
-	// Two way to write for conditions:
-	// 1 -> i, value := range sites
-	// 2 -> i := 0; i<len(sites) ; i++
-	// where sites[i] = value
-
-	for n := 0; n <= tests; n++ {
+func monitoring(sites []string, tests int ,duration time.Duration) {
+	
+	for n := 1; n <= tests; n++ {
 		fmt.Println("Starting the verification", n, "...")
 		for i, value := range sites {
 			resp, err := http.Get(sites[i])
@@ -99,18 +88,34 @@ func monitoring(sites []string) {
 
 			if resp.StatusCode == 200 {
 				fmt.Println(value, "is on ar. Status code: 200")
+				recordingLogs(sites[i], true)
 			} else {
 				fmt.Println(value, "is not answering. Possible status code: 201,500-504")
+				recordingLogs(sites[i], false)
 			}
 		}
-		time.Sleep(delay * time.Second)
+		time.Sleep(duration)
 		fmt.Println("")
 	}
 
 }
 
-func showLogs() {
+func showLogs(){
 	fmt.Println("Showing logs")
+
+	file, err := ioutil.ReadFile("log.txt")
+	errHandler (err)
+
+	fmt.Println(string(file))
+}
+
+func recordingLogs(site string, status bool) {
+
+	file, err := os.OpenFile("log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	errHandler (err)
+
+	file.WriteString(time.Now().Format("02/01/2006 15:04:05") + " - " + site + " - Online:" + strconv.FormatBool(status) + "\n")
+	file.Close()
 }
 
 func exitApp() {
@@ -130,10 +135,7 @@ func readSitesFile() []string {
 	// file, err := ioutil.ReadFile("sites.txt") // Show the content inside the file as bytecode (you can convert in string)
 
 	file, err := os.Open("sites.txt") // Just show a pointer to the file
-
-	if err != nil {
-		fmt.Println("Something went wrong here:", err)
-	}
+	errHandler (err)
 
 	reader := bufio.NewReader(file) // creates a reader that roam the content inside file
 
@@ -151,3 +153,10 @@ func readSitesFile() []string {
 
 	return sites
 }
+
+func errHandler (err error) {
+	if err != nil {
+		fmt.Println("Something went wrong here:", err)
+	}
+}
+
