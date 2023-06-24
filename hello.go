@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,7 +12,6 @@ var global1 int             // Declaring a variable with `var` keyword
 var global2 int = 10        // Assigning a value to a variable right away
 var global3 = "this is ok!" // Go infer type based on your value
 // badVar := "this doesn't work"   // `:=` can be used only inside a function
-
 
 const delay = 1
 const tests int = 5
@@ -68,11 +68,13 @@ func startMonitoring() {
 	// var s [] int
 	// s := []int{2, 3, 4, 9, 1}
 
-	sites := []string{
-		"https://httpstat.us/Random/200,201,500-504",
-		"https://www.alura.com.br/",
-		"https://medium.com/creators",
-	}
+	// sites := []string{
+	// 	"https://httpstat.us/Random/200,201,500-504",
+	// 	"https://www.alura.com.br/",
+	// 	"https://medium.com/creators",
+	// }
+
+	sites := readSitesFile()
 
 	monitoring(sites)
 
@@ -87,7 +89,12 @@ func monitoring(sites []string) {
 	for n := 0; n <= tests; n++ {
 		fmt.Println("Starting the verification", n, "...")
 		for i, value := range sites {
-			resp, _ := http.Get(sites[i])
+			resp, err := http.Get(sites[i])
+
+			if err != nil {
+				fmt.Println("Something went wrong here:", err)
+			}
+
 			if resp.StatusCode == 200 {
 				fmt.Println("Success! The site", value, " is on ar. Status code 200")
 			} else {
@@ -112,4 +119,27 @@ func exitApp() {
 func commandUnknown() {
 	fmt.Println("I don't reconize this command")
 	os.Exit(-1)
+}
+
+func readSitesFile() []string {
+
+	var sites []string
+
+	// file, err := ioutil.ReadFile("sites.txt") // Show the content inside the file as bytecode (you can convert in string)
+
+	file, err := os.Open("sites.txt") // Just show a pointer to the file
+
+	if err != nil {
+		fmt.Println("Something went wrong here:", err)
+	}
+	reader := bufio.NewReader(file) // creates a reader that roam the content inside file
+	line, err := reader.ReadString('\n') // read string until line break "\n"
+
+	if err != nil {
+		fmt.Println("Something went wrong here:", err)
+	}
+
+	fmt.Println(line)
+
+	return sites
 }
