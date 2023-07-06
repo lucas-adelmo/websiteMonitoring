@@ -1,6 +1,8 @@
 <h1 align="center"> Website Monitoring </h1>
 
-![Alt text](websiteMonitoring.png)
+<p align="center">
+  <img src="./websiteMonitoring.png" />
+</p>
 
 # Introduction
 
