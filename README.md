@@ -6,7 +6,7 @@
 
 # Introduction
 
-This simple program monitors the HTTP status code of a website. It's my first project using Go programming language. It's part of a course from [Alura](https://www.alura.com.br/).
+This simple CLI (Command-Line Interface) program monitors the HTTP status code of a website. It's my first project using Go programming language. It's part of a course from [Alura](https://www.alura.com.br/).
 
 # How it works?
 
