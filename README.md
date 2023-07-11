@@ -8,6 +8,10 @@
 
 This simple CLI (Command-Line Interface) program monitors the HTTP status code of a website. It's my first project using Go programming language. It's part of a course from [Alura](https://www.alura.com.br/).
 
+## Stack
+
+* `go1.20.5` linux/amd64
+
 # How it works?
 
 ### - **First step** 
